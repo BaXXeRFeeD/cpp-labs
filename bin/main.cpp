@@ -10,6 +10,6 @@ int main() {
     v2 = from_string("990000000000000");
     v3 = from_string("1");
     v4 = from_string("325902309");
-    std::cout << value * v3 <<'\n';
+    std::cout << v3 - v4 <<'\n';
     return 0;
 }

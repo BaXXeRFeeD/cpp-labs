@@ -12,7 +12,6 @@ struct uint2022_t {
     int countdigits = 0;
     bool zapas = 0;
     bool str = 0;
-    bool flag = 0;
     // implement
 };
 
