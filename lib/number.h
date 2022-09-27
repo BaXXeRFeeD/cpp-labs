@@ -1,9 +1,18 @@
 #pragma once
+
 #include <cinttypes>
 #include <iostream>
+#include <array>
+#include <cmath>
+
 
 
 struct uint2022_t {
+    std::array<int, 68> digits;
+    int countdigits = 0;
+    bool zapas = 0;
+    bool str = 0;
+    bool flag = 0;
     // implement
 };
 
@@ -11,18 +20,18 @@ static_assert(sizeof(uint2022_t) <= 300, "Size of uint2022_t must be no higher t
 
 uint2022_t from_uint(uint32_t i);
 
-uint2022_t from_string(const char* buff);
+uint2022_t from_string(const char *buff);
 
-uint2022_t operator+(const uint2022_t& lhs, const uint2022_t& rhs);
+uint2022_t operator+(const uint2022_t &lhs, const uint2022_t &rhs);
 
-uint2022_t operator-(const uint2022_t& lhs, const uint2022_t& rhs);
+uint2022_t operator-(const uint2022_t &lhs, const uint2022_t &rhs);
 
-uint2022_t operator*(const uint2022_t& lhs, const uint2022_t& rhs);
+uint2022_t operator*(const uint2022_t &lhs, const uint2022_t &rhs);
 
-uint2022_t operator/(const uint2022_t& lhs, const uint2022_t& rhs);
+uint2022_t operator/(const uint2022_t &lhs, const uint2022_t &rhs);
 
-bool operator==(const uint2022_t& lhs, const uint2022_t& rhs);
+bool operator==(const uint2022_t &lhs, const uint2022_t &rhs);
 
-bool operator!=(const uint2022_t& lhs, const uint2022_t& rhs);
+bool operator!=(const uint2022_t &lhs, const uint2022_t &rhs);
 
-std::ostream& operator<<(std::ostream& stream, const uint2022_t& value);
+std::ostream &operator<<(std::ostream &stream, const uint2022_t &value);
