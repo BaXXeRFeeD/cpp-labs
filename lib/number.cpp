@@ -39,6 +39,7 @@ uint2022_t from_string(const char *buff) {
 
 uint2022_t operator+(const uint2022_t &hs1, const uint2022_t &hs2) {
     uint2022_t uint2022_t;
+    uint2022_t.str = hs1.str + hs2.str;
     struct uint2022_t lhs = hs1;
     struct uint2022_t rhs = hs2;
     for (int i = 0; i < 68; i++)
@@ -69,6 +70,7 @@ uint2022_t operator+(const uint2022_t &hs1, const uint2022_t &hs2) {
 
 uint2022_t operator-(const uint2022_t &lhs, const uint2022_t &rhs) {
     uint2022_t uint2022_t;
+    uint2022_t.str = lhs.str + rhs.str;
     if (lhs == rhs) {
         uint2022_t.digits[0] = 1000000000;
         uint2022_t.countdigits = 1;
@@ -97,6 +99,7 @@ uint2022_t operator-(const uint2022_t &lhs, const uint2022_t &rhs) {
 
 uint2022_t operator*(const uint2022_t &lhs, const uint2022_t &rhs) {
     uint2022_t uint2022_t;
+    uint2022_t.str = lhs.str + rhs.str;
     int count = 0;
     if ((lhs.digits[0] == 1000000000 && lhs.countdigits == 1) ||
         (rhs.digits[0] == 1000000000 && rhs.countdigits == 1)) {
