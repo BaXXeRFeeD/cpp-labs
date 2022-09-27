@@ -8,7 +8,7 @@ int main() {
     uint2022_t v1, v2, v3, v4;
     v1 = from_string("12300000000000");
     v2 = from_string("990000000000000");
-    v3 = from_string("0");
+    v3 = from_string("1");
     v4 = from_string("325902309");
     std::cout << value * v3 <<'\n';
     return 0;
