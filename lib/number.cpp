@@ -76,6 +76,7 @@ uint2022_t operator+(const uint2022_t &hs1, const uint2022_t &hs2) {
         proverka = proverka - uint2022_t;
         if (proverka.str)
             uint2022_t.str = 1;
+        uint2022_t.flag = 0;
     }
     return uint2022_t;
 }
