@@ -8,8 +8,8 @@ int main() {
     uint2022_t v1, v2, v3, v4;
     v1 = from_string("12300000000000");
     v2 = from_string("990000000000000");
-    v3 = from_string("1");
+    v3 = from_string("100000000000000");
     v4 = from_string("325902309");
-    std::cout << v3 - v4 + v3 <<'\n';
+    std::cout << value + (v1 - v1) <<'\n';
     return 0;
 }
