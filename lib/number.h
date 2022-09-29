@@ -9,7 +9,7 @@
 #define miliard 1000000000
 
 struct uint2022_t {
-    std::array<int, 68> digits;
+    std::array<int, 69> digits;
     int countdigits = 0;
     bool zapas = 0;
     bool str = 0;

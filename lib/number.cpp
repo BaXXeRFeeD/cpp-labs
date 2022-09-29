@@ -119,30 +119,34 @@ uint2022_t operator*(const uint2022_t &lhs, const uint2022_t &rhs) {
             uint2022_t.digits[i] = 0;
         uint64_t mult;
         for (int i = 0; i < lhs.countdigits; i++) {
-            for (int j = 0; j < rhs.countdigits; j++) {
-                if (uint2022_t.digits[i + j] == 0)
-                    count++;
-                mult = (uint64_t)(lhs.digits[i] - miliard) * (uint64_t)(rhs.digits[j] - miliard);
-                uint2022_t.digits[i + j] += mult % miliard;
-                if (uint2022_t.digits[i + j] >= miliard) {
-                    if (uint2022_t.digits[i + j + 1] == 0)
+            if (uint2022_t.digits[68] != 0){
+                uint2022_t.str = 1;
+                break;
+            }
+                for (int j = 0; j < rhs.countdigits; j++) {
+                    if (uint2022_t.digits[i + j] == 0)
                         count++;
-                    uint2022_t.digits[i + j + 1]++;
-                    uint2022_t.digits[i + j] -= miliard;
-                }
-                mult /= miliard;
-                if (mult != 0) {
-                    if (uint2022_t.digits[i + j + 1] == 0)
-                        count++;
-                    uint2022_t.digits[i + j + 1] += mult % miliard;
-                    if (uint2022_t.digits[i + j + 1] >= miliard) {
-                        if (uint2022_t.digits[i + j + 2] == 0)
+                    mult = (uint64_t) (lhs.digits[i] - miliard) * (uint64_t) (rhs.digits[j] - miliard);
+                    uint2022_t.digits[i + j] += mult % miliard;
+                    if (uint2022_t.digits[i + j] >= miliard) {
+                        if (uint2022_t.digits[i + j + 1] == 0)
                             count++;
-                        uint2022_t.digits[i + j + 2]++;
-                        uint2022_t.digits[i + j + 1] -= miliard;
+                        uint2022_t.digits[i + j + 1]++;
+                        uint2022_t.digits[i + j] -= miliard;
+                    }
+                    mult /= miliard;
+                    if (mult != 0) {
+                        if (uint2022_t.digits[i + j + 1] == 0)
+                            count++;
+                        uint2022_t.digits[i + j + 1] += mult % miliard;
+                        if (uint2022_t.digits[i + j + 1] >= miliard) {
+                            if (uint2022_t.digits[i + j + 2] == 0)
+                                count++;
+                            uint2022_t.digits[i + j + 2]++;
+                            uint2022_t.digits[i + j + 1] -= miliard;
+                        }
                     }
                 }
-            }
         }
     }
     for (int i = 0; i < count; i++)
