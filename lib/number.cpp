@@ -21,58 +21,64 @@ uint2022_t from_uint(uint32_t i) {
 
 uint2022_t from_string(const char *buff) {
     uint2022_t uint2022_t;
-    for (int i = 0; i < 68; i++)
+    for (int i = 0; i < 69; i++)
         uint2022_t.digits[i] = 0;
     int count = 0;
     std::string buffstring = buff;
     uint2022_t.countdigits = buffstring.length() / 9;
-    if (buffstring.size() % 9 != 0)
-        uint2022_t.countdigits++;
-    for (int i = buffstring.size() - 1; i > buffstring.size() - 1 - (uint2022_t.countdigits - 1) * 9; i -= 9) {
-        uint2022_t.digits[count] = stoi(buffstring.substr(i - 8, 9)) + miliard;
-        count++;
+    if(buffstring.length() > 609)
+        uint2022_t.str = 1;
+    else {
+        if (buffstring.size() % 9 != 0)
+            uint2022_t.countdigits++;
+        for (int i = buffstring.size() - 1; i > buffstring.size() - 1 - (uint2022_t.countdigits - 1) * 9; i -= 9) {
+            uint2022_t.digits[count] = stoi(buffstring.substr(i - 8, 9)) + miliard;
+            count++;
+        }
+        uint2022_t.digits[count] =
+                stoi(buffstring.substr(0, buffstring.size() - 1 - (uint2022_t.countdigits - 1) * 9 + 1)) + miliard;
     }
-    uint2022_t.digits[count] =
-            stoi(buffstring.substr(0, buffstring.size() - 1 - (uint2022_t.countdigits - 1) * 9 + 1)) + miliard;
     return uint2022_t;
 }
 
 uint2022_t operator+(const uint2022_t &hs1, const uint2022_t &hs2) {
     uint2022_t uint2022_t;
     uint2022_t.str = hs1.str + hs2.str;
-    struct uint2022_t lhs = hs1;
-    struct uint2022_t rhs = hs2;
-    for (int i = 0; i < 68; i++)
-        uint2022_t.digits[i] = 0;
-    for (int i = fmin(lhs.countdigits, rhs.countdigits); i < fmax(lhs.countdigits, rhs.countdigits); i++) {
-        if (lhs.countdigits > rhs.countdigits)
-            rhs.digits[i] = miliard;
-        else
-            lhs.digits[i] = miliard;
-    }
-    for (int i = 0; i < fmax(lhs.countdigits, rhs.countdigits); i++) {
-        uint2022_t.digits[i] = lhs.digits[i] - miliard + rhs.digits[i] - miliard + uint2022_t.zapas;
-        if (uint2022_t.digits[i] >= miliard)
-            uint2022_t.zapas = 1;
-        else {
-            uint2022_t.digits[i] += miliard;
-            uint2022_t.zapas = 0;
+    if(!uint2022_t.str) {
+        struct uint2022_t lhs = hs1;
+        struct uint2022_t rhs = hs2;
+        for (int i = 0; i < 68; i++)
+            uint2022_t.digits[i] = 0;
+        for (int i = fmin(lhs.countdigits, rhs.countdigits); i < fmax(lhs.countdigits, rhs.countdigits); i++) {
+            if (lhs.countdigits > rhs.countdigits)
+                rhs.digits[i] = miliard;
+            else
+                lhs.digits[i] = miliard;
         }
-    }
-    if (uint2022_t.zapas) {
-        uint2022_t.digits[fmax(lhs.countdigits, rhs.countdigits)] += uint2022_t.zapas;
-        uint2022_t.zapas = 0;
-        uint2022_t.countdigits = fmax(lhs.countdigits, rhs.countdigits) + 1;
-    } else
-        uint2022_t.countdigits = fmax(lhs.countdigits, rhs.countdigits);
-    if (!lhs.flag && !rhs.flag) {
-        struct uint2022_t checker;
-        uint2022_t.flag = 1;
-        checker = from_string(MAXIMUM);
-        checker = checker - uint2022_t;
-        if (checker.str)
-            uint2022_t.str = 1;
-        uint2022_t.flag = 0;
+        for (int i = 0; i < fmax(lhs.countdigits, rhs.countdigits); i++) {
+            uint2022_t.digits[i] = lhs.digits[i] - miliard + rhs.digits[i] - miliard + uint2022_t.zapas;
+            if (uint2022_t.digits[i] >= miliard)
+                uint2022_t.zapas = 1;
+            else {
+                uint2022_t.digits[i] += miliard;
+                uint2022_t.zapas = 0;
+            }
+        }
+        if (uint2022_t.zapas) {
+            uint2022_t.digits[fmax(lhs.countdigits, rhs.countdigits)] += uint2022_t.zapas;
+            uint2022_t.zapas = 0;
+            uint2022_t.countdigits = fmax(lhs.countdigits, rhs.countdigits) + 1;
+        } else
+            uint2022_t.countdigits = fmax(lhs.countdigits, rhs.countdigits);
+        if (!lhs.flag && !rhs.flag) {
+            struct uint2022_t checker;
+            uint2022_t.flag = 1;
+            checker = from_string(MAXIMUM);
+            checker = checker - uint2022_t;
+            if (checker.str)
+                uint2022_t.str = 1;
+            uint2022_t.flag = 0;
+        }
     }
     return uint2022_t;
 }
@@ -80,28 +86,30 @@ uint2022_t operator+(const uint2022_t &hs1, const uint2022_t &hs2) {
 uint2022_t operator-(const uint2022_t &lhs, const uint2022_t &rhs) {
     uint2022_t uint2022_t;
     uint2022_t.str = lhs.str + rhs.str;
-    if (lhs == rhs) {
-        uint2022_t.digits[0] = miliard;
-        uint2022_t.countdigits = 1;
-    } else {
-        struct uint2022_t lhs1 = lhs;
-        struct uint2022_t rhs1 = rhs;
-        uint2022_t.countdigits = lhs1.countdigits;
-        for (int i = 0; i < 68; i++)
-            uint2022_t.digits[i] = 0;
-        for (int i = rhs1.countdigits; i < lhs1.countdigits; i++)
-            rhs1.digits[i] = miliard;
-        for (int i = 0; i < lhs1.countdigits; i++) {
-            if (lhs1.digits[i] >= rhs1.digits[i] + uint2022_t.zapas) {
-                uint2022_t.digits[i] = (lhs1.digits[i] - uint2022_t.zapas - rhs1.digits[i]) + miliard;
-                uint2022_t.zapas = 0;
-            } else {
-                uint2022_t.digits[i] = 2 * miliard - rhs1.digits[i] - uint2022_t.zapas + lhs1.digits[i];
-                uint2022_t.zapas = 1;
+    if(!uint2022_t.str) {
+        if (lhs == rhs) {
+            uint2022_t.digits[0] = miliard;
+            uint2022_t.countdigits = 1;
+        } else {
+            struct uint2022_t lhs1 = lhs;
+            struct uint2022_t rhs1 = rhs;
+            uint2022_t.countdigits = lhs1.countdigits;
+            for (int i = 0; i < 68; i++)
+                uint2022_t.digits[i] = 0;
+            for (int i = rhs1.countdigits; i < lhs1.countdigits; i++)
+                rhs1.digits[i] = miliard;
+            for (int i = 0; i < lhs1.countdigits; i++) {
+                if (lhs1.digits[i] >= rhs1.digits[i] + uint2022_t.zapas) {
+                    uint2022_t.digits[i] = (lhs1.digits[i] - uint2022_t.zapas - rhs1.digits[i]) + miliard;
+                    uint2022_t.zapas = 0;
+                } else {
+                    uint2022_t.digits[i] = 2 * miliard - rhs1.digits[i] - uint2022_t.zapas + lhs1.digits[i];
+                    uint2022_t.zapas = 1;
+                }
             }
+            if (uint2022_t + rhs1 != lhs1)
+                uint2022_t.str = 1;
         }
-        if (uint2022_t + rhs1 != lhs1)
-            uint2022_t.str = 1;
     }
     return uint2022_t;
 }
@@ -171,6 +179,10 @@ uint2022_t operator/(const uint2022_t &lhs, const uint2022_t &rhs) {
 }
 
 bool operator==(const uint2022_t &lhs, const uint2022_t &rhs) {
+    if(lhs.str || rhs.str){
+        std:: cout << "Undefined Behavior";
+        return false;
+    }
     if (lhs.countdigits != rhs.countdigits)
         return false;
     for (int i = 0; i < lhs.countdigits; i++)
@@ -180,6 +192,10 @@ bool operator==(const uint2022_t &lhs, const uint2022_t &rhs) {
 }
 
 bool operator!=(const uint2022_t &lhs, const uint2022_t &rhs) {
+    if(lhs.str || rhs.str){
+        std:: cout << "Undefined Behavior";
+        return false;
+    }
     if (lhs == rhs)
         return false;
     return true;
