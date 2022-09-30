@@ -28,32 +28,40 @@ uint2022_t from_string(const char *buff) {
     int count = 0;
     std::string buffstring = buff;
     uint2022.countdigits = buffstring.length() / 9;
-    if (buffstring.length() > MAXIMUMSIZE) {
-        uint2022.str = 0;
-    } else {
-        if (buffstring.size() % 9 != 0) {
-            uint2022.countdigits++;
+    for(int i = 0; i < buffstring.size(); i++) {
+        if (buffstring[i] < '0' || buffstring[i] > '9') {
+            uint2022.str = 0;
+            break;
         }
-        for (int i = buffstring.size() - 1; i > buffstring.size() - 1 - (uint2022.countdigits - 1) * 9; i -= 9) {
-            uint2022.digits[count] = stoi(buffstring.substr(i - 8, 9)) + additionaldigit;
-            count++;
-        }
-        uint2022.digits[count] =
-                stoi(buffstring.substr(0, buffstring.size() - 1 - (uint2022.countdigits - 1) * 9 + 1)) +
-                additionaldigit;
-        bool tr = false;
-        for (int i = 0; i < buffstring.size(); i++) {
-            if (buffstring[i] != MAXIMUM[i]) {
-                tr = true;
-                break;
+    }
+    if(uint2022.str) {
+        if (buffstring.length() > MAXIMUMSIZE) {
+            uint2022.str = 0;
+        } else {
+            if (buffstring.size() % 9 != 0) {
+                uint2022.countdigits++;
             }
-        }
-        if (tr) {
-            uint2022_t checker = from_string(MAXIMUM);
-            uint2022.flag = 1;
-            checker = checker - uint2022;
-            uint2022.flag = 0;
-            uint2022.str = checker.str;
+            for (int i = buffstring.size() - 1; i > buffstring.size() - 1 - (uint2022.countdigits - 1) * 9; i -= 9) {
+                uint2022.digits[count] = stoi(buffstring.substr(i - 8, 9)) + additionaldigit;
+                count++;
+            }
+            uint2022.digits[count] =
+                    stoi(buffstring.substr(0, buffstring.size() - 1 - (uint2022.countdigits - 1) * 9 + 1)) +
+                    additionaldigit;
+            bool tr = false;
+            for (int i = 0; i < buffstring.size() && uint2022.str; i++) {
+                if (buffstring[i] != MAXIMUM[i]) {
+                    tr = true;
+                    break;
+                }
+            }
+            if (tr && uint2022.str) {
+                uint2022_t checker = from_string(MAXIMUM);
+                uint2022.flag = 1;
+                checker = checker - uint2022;
+                uint2022.flag = 0;
+                uint2022.str = checker.str;
+            }
         }
     }
     return uint2022;
@@ -143,63 +151,65 @@ uint2022_t operator-(const uint2022_t &lhs, const uint2022_t &rhs) {
 uint2022_t operator*(const uint2022_t &lhs, const uint2022_t &rhs) {
     uint2022_t uint2022;
     uint2022.str = lhs.str * rhs.str;
-    int count = 0;
-    if ((lhs.digits[0] == additionaldigit && lhs.countdigits == 1) ||
-        (rhs.digits[0] == additionaldigit && rhs.countdigits == 1)) {
-        uint2022.digits[0] = 0;
-        count = 1;
-    } else {
-        for (int i = 0; i < digitssize; i++) {
-            uint2022.digits[i] = 0;
-        }
-        uint64_t mult;
-        for (int i = 0; i < lhs.countdigits && uint2022.str; i++) {
-            for (int j = 0; j < rhs.countdigits; j++) {
-                if (uint2022.digits[digitssize - 1] != 0) {
-                    uint2022.str = 0;
-                    break;
-                }
-                if (uint2022.digits[i + j] == 0) {
-                    count++;
-                }
-                mult = (uint64_t) (lhs.digits[i] - additionaldigit) * (uint64_t) (rhs.digits[j] - additionaldigit);
-                uint2022.digits[i + j] += mult % additionaldigit;
-                if (uint2022.digits[i + j] >= additionaldigit) {
-                    if (uint2022.digits[i + j + 1] == 0) {
+    if(uint2022.str) {
+        int count = 0;
+        if ((lhs.digits[0] == additionaldigit && lhs.countdigits == 1) ||
+            (rhs.digits[0] == additionaldigit && rhs.countdigits == 1)) {
+            uint2022.digits[0] = 0;
+            count = 1;
+        } else {
+            for (int i = 0; i < digitssize; i++) {
+                uint2022.digits[i] = 0;
+            }
+            uint64_t mult;
+            for (int i = 0; i < lhs.countdigits && uint2022.str; i++) {
+                for (int j = 0; j < rhs.countdigits; j++) {
+                    if (uint2022.digits[digitssize - 1] != 0) {
+                        uint2022.str = 0;
+                        break;
+                    }
+                    if (uint2022.digits[i + j] == 0) {
                         count++;
                     }
-                    uint2022.digits[i + j + 1]++;
-                    uint2022.digits[i + j] -= additionaldigit;
-                }
-                mult /= additionaldigit;
-                if (mult != 0) {
-                    if (uint2022.digits[i + j + 1] == 0) {
-                        count++;
-                    }
-                    uint2022.digits[i + j + 1] += mult % additionaldigit;
-                    if (uint2022.digits[i + j + 1] >= additionaldigit) {
-                        if (uint2022.digits[i + j + 2] == 0) {
+                    mult = (uint64_t) (lhs.digits[i] - additionaldigit) * (uint64_t) (rhs.digits[j] - additionaldigit);
+                    uint2022.digits[i + j] += mult % additionaldigit;
+                    if (uint2022.digits[i + j] >= additionaldigit) {
+                        if (uint2022.digits[i + j + 1] == 0) {
                             count++;
                         }
-                        uint2022.digits[i + j + 2]++;
-                        uint2022.digits[i + j + 1] -= additionaldigit;
+                        uint2022.digits[i + j + 1]++;
+                        uint2022.digits[i + j] -= additionaldigit;
+                    }
+                    mult /= additionaldigit;
+                    if (mult != 0) {
+                        if (uint2022.digits[i + j + 1] == 0) {
+                            count++;
+                        }
+                        uint2022.digits[i + j + 1] += mult % additionaldigit;
+                        if (uint2022.digits[i + j + 1] >= additionaldigit) {
+                            if (uint2022.digits[i + j + 2] == 0) {
+                                count++;
+                            }
+                            uint2022.digits[i + j + 2]++;
+                            uint2022.digits[i + j + 1] -= additionaldigit;
+                        }
                     }
                 }
             }
         }
-    }
-    if (uint2022.str) {
-        for (int i = 0; i < count; i++) {
-            uint2022.digits[i] += additionaldigit;
-        }
-        uint2022.countdigits = count;
-        if (!lhs.flag && !rhs.flag) {
-            uint2022_t checker;
-            uint2022.flag = 1;
-            checker = from_string(MAXIMUM);
-            checker = checker - uint2022;
-            uint2022.str = checker.str;
-            uint2022.flag = 0;
+        if (uint2022.str) {
+            for (int i = 0; i < count; i++) {
+                uint2022.digits[i] += additionaldigit;
+            }
+            uint2022.countdigits = count;
+            if (!lhs.flag && !rhs.flag) {
+                uint2022_t checker;
+                uint2022.flag = 1;
+                checker = from_string(MAXIMUM);
+                checker = checker - uint2022;
+                uint2022.str = checker.str;
+                uint2022.flag = 0;
+            }
         }
     }
     return uint2022;
