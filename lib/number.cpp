@@ -231,13 +231,13 @@ bool operator==(const uint2022_t &lhs, const uint2022_t &rhs) {
         }
         return true;
     }
-    std::cout << "Undefined Behavior";
+    std::cout << "Undefined Behavior\n";
     return false;
 }
 
 bool operator!=(const uint2022_t &lhs, const uint2022_t &rhs) {
     if (!lhs.str || !rhs.str) {
-        std::cout << "Undefined Behavior";
+        std::cout << "Undefined Behavior\n";
         return false;
     }
     return !(lhs == rhs);
@@ -254,6 +254,6 @@ std::ostream &operator<<(std::ostream &stream, uint2022_t value) {
         }
         return stream;
     }
-    stream << "Undefined Behavior";
+    stream << "Undefined Behavior\n";
     return stream;
 }
