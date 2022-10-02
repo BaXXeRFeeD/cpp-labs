@@ -159,22 +159,24 @@ uint2022_t operator*(const uint2022_t &lhs, const uint2022_t &rhs) {
             count = 1;
         } else {
             for (int i = 0; i < digitssize; i++) {
-                uint2022.digits[i] = 0;
+                uint2022.digits[i] = -1;
             }
             uint64_t mult;
             for (int i = 0; i < lhs.countdigits && uint2022.str; i++) {
                 for (int j = 0; j < rhs.countdigits; j++) {
-                    if (uint2022.digits[digitssize - 1] != 0) {
+                    if (uint2022.digits[digitssize - 1] != -1) {
                         uint2022.str = 0;
                         break;
                     }
-                    if (uint2022.digits[i + j] == 0) {
+                    if (uint2022.digits[i + j] == -1) {
+                        uint2022.digits[i + j]++;
                         count++;
                     }
                     mult = (uint64_t) (lhs.digits[i] - additionaldigit) * (uint64_t) (rhs.digits[j] - additionaldigit);
                     uint2022.digits[i + j] += mult % additionaldigit;
                     if (uint2022.digits[i + j] >= additionaldigit) {
-                        if (uint2022.digits[i + j + 1] == 0) {
+                        if (uint2022.digits[i + j + 1] == -1) {
+                            uint2022.digits[i + j + 1]++;
                             count++;
                         }
                         uint2022.digits[i + j + 1]++;
@@ -182,12 +184,14 @@ uint2022_t operator*(const uint2022_t &lhs, const uint2022_t &rhs) {
                     }
                     mult /= additionaldigit;
                     if (mult != 0) {
-                        if (uint2022.digits[i + j + 1] == 0) {
+                        if (uint2022.digits[i + j + 1] == -1) {
+                            uint2022.digits[i + j + 1]++;
                             count++;
                         }
                         uint2022.digits[i + j + 1] += mult % additionaldigit;
                         if (uint2022.digits[i + j + 1] >= additionaldigit) {
-                            if (uint2022.digits[i + j + 2] == 0) {
+                            if (uint2022.digits[i + j + 2] == -1) {
+                                uint2022.digits[i + j + 2]++;
                                 count++;
                             }
                             uint2022.digits[i + j + 2]++;
