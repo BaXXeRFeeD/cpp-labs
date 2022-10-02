@@ -13,7 +13,6 @@ constexpr int digitssize = 69;
 struct uint2022_t {
     std::array<int, 69> digits;
     int countdigits = 0;
-    bool additionalnumber = 0;
     bool str = 1;
     bool flag = 0;
     // implement

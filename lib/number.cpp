@@ -28,13 +28,13 @@ uint2022_t from_string(const char *buff) {
     int count = 0;
     std::string buffstring = buff;
     uint2022.countdigits = buffstring.length() / 9;
-    for(int i = 0; i < buffstring.size(); i++) {
+    for (int i = 0; i < buffstring.size(); i++) {
         if (buffstring[i] < '0' || buffstring[i] > '9') {
             uint2022.str = 0;
             break;
         }
     }
-    if(uint2022.str) {
+    if (uint2022.str) {
         if (buffstring.length() > MAXIMUMSIZE) {
             uint2022.str = 0;
         } else {
@@ -85,20 +85,18 @@ uint2022_t operator+(const uint2022_t &hs1, const uint2022_t &hs2) {
         }
         for (int i = 0; i < fmax(lhs.countdigits, rhs.countdigits); i++) {
             uint2022.digits[i] =
-                    lhs.digits[i] - additionaldigit + rhs.digits[i] - additionaldigit + uint2022.additionalnumber;
+                    lhs.digits[i] - additionaldigit + rhs.digits[i] - additionaldigit + uint2022.digits[i];
             if (uint2022.digits[i] >= additionaldigit) {
-                uint2022.additionalnumber = 1;
+                uint2022.digits[i + 1] = 1;
             } else {
                 uint2022.digits[i] += additionaldigit;
-                uint2022.additionalnumber = 0;
             }
         }
-        if (uint2022.additionalnumber) {
-            uint2022.digits[fmax(lhs.countdigits, rhs.countdigits)] += uint2022.additionalnumber;
-            uint2022.additionalnumber = 0;
-            uint2022.countdigits = fmax(lhs.countdigits, rhs.countdigits) + 1;
-        } else {
+        if (uint2022.digits[fmax(lhs.countdigits, rhs.countdigits)] == 0) {
             uint2022.countdigits = fmax(lhs.countdigits, rhs.countdigits);
+        } else {
+            uint2022.countdigits = fmax(lhs.countdigits, rhs.countdigits) + 1;
+            uint2022.digits[uint2022.countdigits - 1] += additionaldigit;
         }
         if (!lhs.flag && !rhs.flag) {
             uint2022_t checker;
@@ -130,14 +128,13 @@ uint2022_t operator-(const uint2022_t &lhs, const uint2022_t &rhs) {
                 rhs1.digits[i] = additionaldigit;
             }
             for (int i = 0; i < lhs1.countdigits; i++) {
-                if (lhs1.digits[i] >= rhs1.digits[i] + uint2022.additionalnumber) {
+                if (lhs1.digits[i] >= rhs1.digits[i] + uint2022.digits[i]) {
                     uint2022.digits[i] =
-                            (lhs1.digits[i] - uint2022.additionalnumber - rhs1.digits[i]) + additionaldigit;
-                    uint2022.additionalnumber = 0;
+                            (lhs1.digits[i] - uint2022.digits[i] - rhs1.digits[i]) + additionaldigit;
                 } else {
                     uint2022.digits[i] =
-                            2 * additionaldigit - rhs1.digits[i] - uint2022.additionalnumber + lhs1.digits[i];
-                    uint2022.additionalnumber = 1;
+                            2 * additionaldigit - rhs1.digits[i] - uint2022.digits[i] + lhs1.digits[i];
+                    uint2022.digits[i + 1] = 1;
                 }
             }
             if (uint2022 + rhs1 != lhs1) {
@@ -151,7 +148,7 @@ uint2022_t operator-(const uint2022_t &lhs, const uint2022_t &rhs) {
 uint2022_t operator*(const uint2022_t &lhs, const uint2022_t &rhs) {
     uint2022_t uint2022;
     uint2022.str = lhs.str * rhs.str;
-    if(uint2022.str) {
+    if (uint2022.str) {
         int count = 0;
         if ((lhs.digits[0] == additionaldigit && lhs.countdigits == 1) ||
             (rhs.digits[0] == additionaldigit && rhs.countdigits == 1)) {
