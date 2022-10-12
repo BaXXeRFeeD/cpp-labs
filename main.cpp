@@ -100,7 +100,7 @@ int main(int argc, char **argv) {
                 record(fileout, length);
                 fileout << (char) 1 << (char) 0 << (char) 32 << (char) 0 << (char) 0 << (char) 0 << (char) 0
                         << (char) 0;
-                record(fileout, 4 * length * width);
+                record(fileout, length * width);
                 fileout << (char) 0 << (char) 0 << (char) 0 << (char) 0 << (char) 0 << (char) 0 << (char) 0 << (char) 0;
                 fileout << (char) 0 << (char) 0 << (char) 0 << (char) 0 << (char) 0 << (char) 0 << (char) 0 << (char) 0;
                 for (int i = 0; i < width; i++) {
