@@ -73,7 +73,7 @@ int main(int argc, char **argv) {
         }
         while (maxiter > 0) {
             filename = output;
-            filename += "picture";
+            filename += "\\picture";
             for (int i = 0; i < width; i++) {
                 for (int j = 0; j < length; j++) {
                     if (array[i][j] > 3) {
