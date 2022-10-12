@@ -54,6 +54,7 @@ int main(int argc, char **argv) {
         std::string filename;
         int maxi = 1;
         int fre = 1;
+        long long workarray[width][length];
         for (int i = 0; i < width; i++) {
             getline(filein, stringgetline);
             stringgetline = "\t" + stringgetline;
@@ -61,11 +62,13 @@ int main(int argc, char **argv) {
             for (int j = 1; j < stringgetline.size(); j++) {
                 if (stringgetline[j] == '\t') {
                     array[i][k] = stoi(stringgetline.substr(point, j - point + 1));
+                    workarray[i][k] = array[i][k];
                     point = j;
                     k++;
                 }
             }
             array[i][k] = stoi(stringgetline.substr(point, stringgetline.size() - point + 1));
+            workarray[i][k] = array[i][k];
             k = 0;
         }
         while (maxiter > 0) {
@@ -74,16 +77,21 @@ int main(int argc, char **argv) {
             for (int i = 0; i < width; i++) {
                 for (int j = 0; j < length; j++) {
                     if (array[i][j] > 3) {
-                        array[i][j] -= 4;
+                        workarray[i][j] -= 4;
                         if (i + 1 < width)
-                            array[i + 1][j]++;
+                            workarray[i + 1][j]++;
                         if (i - 1 >= 0)
-                            array[i - 1][j]++;
+                            workarray[i - 1][j]++;
                         if (j + 1 < length)
-                            array[i][j + 1]++;
+                            workarray[i][j + 1]++;
                         if (j - 1 >= 0)
-                            array[i][j - 1]++;
+                            workarray[i][j - 1]++;
                     }
+                }
+            }
+            for(int i = 0; i < width; i++){
+                for(int j = 0; j < length; j++){
+                    array[i][j] = workarray[i][j];
                 }
             }
             if ((freq == 0 && maxiter == 1) || (freq != 0 && fre % freq == 0)) {
