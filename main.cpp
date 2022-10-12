@@ -20,8 +20,8 @@ void record(std::ofstream &fileout, long long memory) {
 int main(int argc, char **argv) {
     uint16_t length = 0;
     uint16_t width = 0;
-    char *input;
-    char *output;
+    std::string input;
+    std::string output;
     int maxiter = -1;
     int freq = -1;
     for (int i = 1; i < argc; i += 2) {
@@ -51,7 +51,7 @@ int main(int argc, char **argv) {
         std::string stringgetline;
         int point;
         int k = 0;
-        std::string filename = "text";
+        std::string filename;
         int maxi = 1;
         int fre = 1;
         for (int i = 0; i < width; i++) {
@@ -96,8 +96,8 @@ int main(int argc, char **argv) {
                 record(fileout, memory);
                 fileout << (char) 0 << (char) 0 << (char) 0 << (char) 0 << (char) 54 << (char) 0 << (char) 0 << (char) 0
                         << (char) 40 << (char) 0 << (char) 0 << (char) 0;
-                record(fileout, width);
                 record(fileout, length);
+                record(fileout, width);
                 fileout << (char) 1 << (char) 0 << (char) 32 << (char) 0 << (char) 0 << (char) 0 << (char) 0
                         << (char) 0;
                 record(fileout, length * width);
