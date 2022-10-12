@@ -17,6 +17,23 @@ void record(std::ofstream &fileout, long long memory) {
     }
 }
 
+long long pow(int uint, int n) {
+    long long result = uint;
+    for (int i = 0; i < n; i++) {
+        result *= 10;
+    }
+    return result;
+}
+
+long long upheaval(long long uint) {
+    long long result = 0;
+    int k = 0;
+    while (uint > 0) {
+        result += pow((uint % 10), k);
+    }
+    return result;
+}
+
 int main(int argc, char **argv) {
     uint16_t length = 0;
     uint16_t width = 0;
@@ -48,28 +65,28 @@ int main(int argc, char **argv) {
     }
     if (length != 0 && width != 0 && maxiter != -1 && freq != -1) {
         long long array[width][length];
-        std::string stringgetline;
-        int point;
-        int k = 0;
         std::string filename;
         int maxi = 1;
         int fre = 1;
         long long workarray[width][length];
-        for (int i = 0; i < width; i++) {
-            getline(filein, stringgetline);
-            stringgetline = "\t" + stringgetline;
-            point = 0;
-            for (int j = 1; j < stringgetline.size(); j++) {
-                if (stringgetline[j] == '\t') {
-                    array[i][k] = stoi(stringgetline.substr(point, j - point + 1));
-                    workarray[i][k] = array[i][k];
-                    point = j;
-                    k++;
+        char digit;
+        uint16_t workwidth = 0;
+        uint16_t worklength = 0;
+        std::string number = "";
+        while (workwidth < width) {
+            while (worklength < length) {
+                digit = filein.get();
+                while (digit != '\t' && digit != '\n') {
+                    number += digit;
+                    digit = filein.get();
                 }
+                array[workwidth][worklength] = stoi(number);
+                workarray[workwidth][worklength] = array[workwidth][worklength];
+                worklength++;
+                number = "";
             }
-            array[i][k] = stoi(stringgetline.substr(point, stringgetline.size() - point + 1));
-            workarray[i][k] = array[i][k];
-            k = 0;
+            worklength = 0;
+            workwidth++;
         }
         while (maxiter > 0) {
             filename = output;
@@ -89,8 +106,8 @@ int main(int argc, char **argv) {
                     }
                 }
             }
-            for(int i = 0; i < width; i++){
-                for(int j = 0; j < length; j++){
+            for (int i = 0; i < width; i++) {
+                for (int j = 0; j < length; j++) {
                     array[i][j] = workarray[i][j];
                 }
             }
