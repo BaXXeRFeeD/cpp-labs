@@ -17,23 +17,6 @@ void record(std::ofstream &fileout, long long memory) {
     }
 }
 
-long long pow(int uint, int n) {
-    long long result = uint;
-    for (int i = 0; i < n; i++) {
-        result *= 10;
-    }
-    return result;
-}
-
-long long upheaval(long long uint) {
-    long long result = 0;
-    int k = 0;
-    while (uint > 0) {
-        result += pow((uint % 10), k);
-    }
-    return result;
-}
-
 int main(int argc, char **argv) {
     uint16_t length = 0;
     uint16_t width = 0;
