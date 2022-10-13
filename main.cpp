@@ -62,12 +62,18 @@ int main(int argc, char **argv) {
         std::cout << input << " isn't present" << "\n";
     }
     if (length != 0 && width != 0 && maxiter != -1 && freq != -1) {
-        long long array[width][length];
+        long long **array = new long long* [width];
+        for(int i = 0; i < width; i++){
+            array[i] = new long long [length];
+        }
         for (int i = 0; i < width; i++) {
             for (int j = 0; j < length; j++)
                 array[i][j] = 0;
         }
-        long long workarray[width][length];
+        long long **workarray = new long long*[width];
+        for(int i = 0; i < width; i++){
+            workarray[i] = new long long [length];
+        }
         for (int i = 0; i < width; i++) {
             for (int j = 0; j < length; j++)
                 workarray[i][j] = 0;
