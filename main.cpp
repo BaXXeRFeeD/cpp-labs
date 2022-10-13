@@ -2,32 +2,31 @@
 #include <fstream>
 #include <string>
 
-void record(std::ofstream &fileout, long long memory) {
-    long long mem = memory;
+void record(std::ofstream &fileout, uint64_t memory) {
+    uint64_t mem = memory;
     while (mem > 0) {
         fileout << (char) (mem % 256);
         mem /= 256;
     }
     if (memory >= 65536 && memory < 16777215)
         fileout << (char) 0;
-    else if (memory >= 256 && memory < 65535) {
+    else if (memory >= 256 && memory < 65535)
         fileout << (char) 0 << (char) 0;
-    } else if (memory < 256) {
+    else if (memory < 256)
         fileout << (char) 0 << (char) 0 << (char) 0;
-    }
 }
 
-long long pow(int a, int b) {
-    long long result = 1;
+uint64_t pow(int a, int b) {
+    uint64_t result = 1;
     for (int i = 0; i < b; i++)
-        result *= a;
+        result *= (uint64_t) a;
     return result;
 }
 
-long long number(std::string str) {
-    long long result = 0;
+uint64_t number(std::string str) {
+    uint64_t result = 0;
     for (int i = str.size() - 1; i >= 0; i--) {
-        result += (str[i] - '0') * pow(10, str.size() - i - 1);
+        result += (uint64_t) (str[i] - '0') * pow(10, str.size() - i - 1);
     }
     return result;
 }
@@ -55,122 +54,127 @@ int main(int argc, char **argv) {
         else if (argv1 == "-f" || argv1 == "--freq")
             freq = stoi(argv2);
     }
-    std::fstream filein;
+    std::ifstream filein(input, std::fstream::in);
     std::ofstream fileout;
-    filein.open(input);
     if (filein.fail()) {
         std::cout << input << " isn't present" << "\n";
-    }
-    if (length != 0 && width != 0 && maxiter != -1 && freq != -1) {
-        long long **array = new long long* [width];
-        for(int i = 0; i < width; i++){
-            array[i] = new long long [length];
-        }
-        for (int i = 0; i < width; i++) {
-            for (int j = 0; j < length; j++)
-                array[i][j] = 0;
-        }
-        long long **workarray = new long long*[width];
-        for(int i = 0; i < width; i++){
-            workarray[i] = new long long [length];
-        }
-        for (int i = 0; i < width; i++) {
-            for (int j = 0; j < length; j++)
-                workarray[i][j] = 0;
-        }
-        std::string filename;
-        int maxi = 1;
-        int fre = 1;
-        int x;
-        int y;
-        char digit;
-        std::string ss = "";
-        while (!filein.eof()) {//model.exe -l 2 -w 2 -m 2 -f 1 -i book3.tsv -o ./
-            digit = filein.get();
-            while (digit != '\t' && digit != '\n') {
-                ss += digit;
-                digit = filein.get();
-            }
-            x = number(ss);
-            ss = "";
-            digit = filein.get();
-            while (digit != '\t' && digit != '\n') {
-                ss += digit;
-                digit = filein.get();
-            }
-            y = number(ss);
-            ss = "";
-            digit = filein.get();
-            while (digit != '\t' && digit != '\n' && !filein.eof()) {
-                ss += digit;
-                digit = filein.get();
-            }
-            array[y - 1][x - 1] = number(ss);
-            workarray[y - 1][x - 1] = array[y - 1][x - 1];
-            ss = "";
-        }
-        while (maxiter > 0) {
-            filename = output;
-            filename += "\\picture";
+    } else if (output.empty())
+        std::cout << "output storage isn't present" << "\n";
+    else {
+        if (length != 0 && width != 0 && maxiter != -1 && freq != -1) {
+            uint64_t **array = new uint64_t * [width];
             for (int i = 0; i < width; i++) {
-                for (int j = 0; j < length; j++) {
-                    if (array[i][j] > 3) {
-                        workarray[i][j] -= 4;
-                        if (i + 1 < width)
-                            workarray[i + 1][j]++;
-                        if (i - 1 >= 0)
-                            workarray[i - 1][j]++;
-                        if (j + 1 < length)
-                            workarray[i][j + 1]++;
-                        if (j - 1 >= 0)
-                            workarray[i][j - 1]++;
-                    }
-                }
+                array[i] = new uint64_t[length];
             }
             for (int i = 0; i < width; i++) {
-                for (int j = 0; j < length; j++) {
-                    array[i][j] = workarray[i][j];
-                }
+                for (int j = 0; j < length; j++)
+                    array[i][j] = 0;
             }
-            if ((freq == 0 && maxiter == 1) || (freq != 0 && fre % freq == 0)) {
-                long long memory = 54 + 4 * width * length;
-                filename += std::to_string(maxi);
-                maxi++;
-                filename += ".bmp";
-                fileout.open(filename);
-                fileout << "BM";
-                record(fileout, memory);
-                fileout << (char) 0 << (char) 0 << (char) 0 << (char) 0 << (char) 54 << (char) 0 << (char) 0 << (char) 0
-                        << (char) 40 << (char) 0 << (char) 0 << (char) 0;
-                record(fileout, length);
-                record(fileout, width);
-                fileout << (char) 1 << (char) 0 << (char) 32 << (char) 0 << (char) 0 << (char) 0 << (char) 0
-                        << (char) 0;
-                record(fileout, length * width);
-                fileout << (char) 0 << (char) 0 << (char) 0 << (char) 0 << (char) 0 << (char) 0 << (char) 0 << (char) 0;
-                fileout << (char) 0 << (char) 0 << (char) 0 << (char) 0 << (char) 0 << (char) 0 << (char) 0 << (char) 0;
+            uint64_t **workarray = new uint64_t * [width];
+            for (int i = 0; i < width; i++) {
+                workarray[i] = new uint64_t[length];
+            }
+            for (int i = 0; i < width; i++) {
+                for (int j = 0; j < length; j++)
+                    workarray[i][j] = 0;
+            }
+            std::string filename;
+            int maxi = 1;
+            int fre = 1;
+            int x;
+            int y;
+            char digit;
+            std::string ss = "";
+            while (!filein.eof()) {
+                digit = filein.get();
+                while (digit != '\t' && digit != '\n') {
+                    ss += digit;
+                    digit = filein.get();
+                }
+                x = number(ss);
+                ss = "";
+                digit = filein.get();
+                while (digit != '\t' && digit != '\n') {
+                    ss += digit;
+                    digit = filein.get();
+                }
+                y = number(ss);
+                ss = "";
+                digit = filein.get();
+                while (digit != '\t' && digit != '\n' && !filein.eof()) {
+                    ss += digit;
+                    digit = filein.get();
+                }
+                array[y - 1][x - 1] = number(ss);
+                workarray[y - 1][x - 1] = array[y - 1][x - 1];
+                ss = "";
+            }
+            while (maxiter > 0) {
+                filename = output;
+                filename += "\\picture";
                 for (int i = 0; i < width; i++) {
                     for (int j = 0; j < length; j++) {
-                        if (array[i][j] == 0)
-                            fileout << (char) 255 << (char) 255 << (char) 255 << (char) 0;
-                        else if (array[i][j] == 1)
-                            fileout << (char) 0 << (char) 128 << (char) 0 << (char) 0;
-                        else if (array[i][j] == 2)
-                            fileout << (char) 255 << (char) 0 << (char) 139 << (char) 0;
-                        else if (array[i][j] == 3)
-                            fileout << (char) 0 << (char) 255 << (char) 255 << (char) 0;
-                        else if (array[i][j] > 3)
-                            fileout << (char) 0 << (char) 0 << (char) 0 << (char) 0;
+                        if (array[i][j] > 3) {
+                            workarray[i][j] -= 4;
+                            if (i + 1 < width)
+                                workarray[i + 1][j]++;
+                            if (i - 1 >= 0)
+                                workarray[i - 1][j]++;
+                            if (j + 1 < length)
+                                workarray[i][j + 1]++;
+                            if (j - 1 >= 0)
+                                workarray[i][j - 1]++;
+                        }
                     }
                 }
-                fileout.close();
+                for (int i = 0; i < width; i++) {
+                    for (int j = 0; j < length; j++) {
+                        array[i][j] = workarray[i][j];
+                    }
+                }
+                if ((freq == 0 && maxiter == 1) || (freq != 0 && fre % freq == 0)) {
+                    uint64_t memory = 54 + 4 * (uint64_t) width * (uint64_t) length;
+                    filename += std::to_string(maxi);
+                    maxi++;
+                    filename += ".bmp";
+                    fileout.open(filename);
+                    fileout << "BM";
+                    record(fileout, memory);
+                    fileout << (char) 0 << (char) 0 << (char) 0 << (char) 0 << (char) 54 << (char) 0 << (char) 0
+                            << (char) 0
+                            << (char) 40 << (char) 0 << (char) 0 << (char) 0;
+                    record(fileout, length);
+                    record(fileout, width);
+                    fileout << (char) 1 << (char) 0 << (char) 32 << (char) 0 << (char) 0 << (char) 0 << (char) 0
+                            << (char) 0;
+                    record(fileout, (uint64_t) length * (uint64_t) width);
+                    fileout << (char) 0 << (char) 0 << (char) 0 << (char) 0 << (char) 0 << (char) 0 << (char) 0
+                            << (char) 0;
+                    fileout << (char) 0 << (char) 0 << (char) 0 << (char) 0 << (char) 0 << (char) 0 << (char) 0
+                            << (char) 0;
+                    for (int i = 0; i < width; i++) {
+                        for (int j = 0; j < length; j++) {
+                            if (array[i][j] == 0)
+                                fileout << (char) 255 << (char) 255 << (char) 255 << (char) 0;
+                            else if (array[i][j] == 1)
+                                fileout << (char) 0 << (char) 128 << (char) 0 << (char) 0;
+                            else if (array[i][j] == 2)
+                                fileout << (char) 255 << (char) 0 << (char) 139 << (char) 0;
+                            else if (array[i][j] == 3)
+                                fileout << (char) 0 << (char) 255 << (char) 255 << (char) 0;
+                            else if (array[i][j] > 3)
+                                fileout << (char) 0 << (char) 0 << (char) 0 << (char) 0;
+                        }
+                    }
+                    fileout.close();
+                }
+                maxiter--;
+                fre++;
             }
-            maxiter--;
-            fre++;
+        } else {
+            std::cout << "Error parameters";
+            exit(1);
         }
-    } else {
-        std::cout << "Error parameters";
-        exit(1);
     }
     return 0;
 }
