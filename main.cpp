@@ -1,6 +1,6 @@
 #include <iostream>
-#include <string>
 #include <fstream>
+#include <string>
 
 void record(std::ofstream &fileout, long long memory) {
     long long mem = memory;
@@ -15,6 +15,21 @@ void record(std::ofstream &fileout, long long memory) {
     } else if (memory < 256) {
         fileout << (char) 0 << (char) 0 << (char) 0;
     }
+}
+
+long long pow(int a, int b) {
+    long long result = 1;
+    for (int i = 0; i < b; i++)
+        result *= a;
+    return result;
+}
+
+long long number(std::string str) {
+    long long result = 0;
+    for (int i = str.size() - 1; i >= 0; i--) {
+        result += (str[i] - '0') * pow(10, str.size() - i - 1);
+    }
+    return result;
 }
 
 int main(int argc, char **argv) {
@@ -48,28 +63,45 @@ int main(int argc, char **argv) {
     }
     if (length != 0 && width != 0 && maxiter != -1 && freq != -1) {
         long long array[width][length];
+        for (int i = 0; i < width; i++) {
+            for (int j = 0; j < length; j++)
+                array[i][j] = 0;
+        }
+        long long workarray[width][length];
+        for (int i = 0; i < width; i++) {
+            for (int j = 0; j < length; j++)
+                workarray[i][j] = 0;
+        }
         std::string filename;
         int maxi = 1;
         int fre = 1;
-        long long workarray[width][length];
+        int x;
+        int y;
         char digit;
-        uint16_t workwidth = 0;
-        uint16_t worklength = 0;
-        std::string number = "";
-        while (workwidth < width) {
-            while (worklength < length) {
+        std::string ss = "";
+        while (!filein.eof()) {//model.exe -l 2 -w 2 -m 2 -f 1 -i book3.tsv -o ./
+            digit = filein.get();
+            while (digit != '\t' && digit != '\n') {
+                ss += digit;
                 digit = filein.get();
-                while (digit != '\t' && digit != '\n') {
-                    number += digit;
-                    digit = filein.get();
-                }
-                array[workwidth][worklength] = stoi(number);
-                workarray[workwidth][worklength] = array[workwidth][worklength];
-                worklength++;
-                number = "";
             }
-            worklength = 0;
-            workwidth++;
+            x = number(ss);
+            ss = "";
+            digit = filein.get();
+            while (digit != '\t' && digit != '\n') {
+                ss += digit;
+                digit = filein.get();
+            }
+            y = number(ss);
+            ss = "";
+            digit = filein.get();
+            while (digit != '\t' && digit != '\n' && !filein.eof()) {
+                ss += digit;
+                digit = filein.get();
+            }
+            array[y - 1][x - 1] = number(ss);
+            workarray[y - 1][x - 1] = array[y - 1][x - 1];
+            ss = "";
         }
         while (maxiter > 0) {
             filename = output;
