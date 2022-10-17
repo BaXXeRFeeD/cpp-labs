@@ -2,7 +2,7 @@
 #include <fstream>
 #include <string>
 
-void WriteInFile(std::ofstream& fileout, uint64_t memory) {
+void WriteNumberInFile(std::ofstream& fileout, uint64_t memory) {
     uint64_t mem = memory;
     while (mem > 0) {
         fileout << (char) (mem % 256);
@@ -14,6 +14,36 @@ void WriteInFile(std::ofstream& fileout, uint64_t memory) {
         fileout << (char) 0 << (char) 0;
     else if (memory < 256)
         fileout << (char) 0 << (char) 0 << (char) 0;
+}
+
+void WriteFileHead(std::ofstream& fileout, uint64_t memory){
+    fileout << "BM";
+    WriteNumberInFile(fileout, memory);
+    fileout << (char) 0 << (char) 0 << (char) 0 << (char) 0
+            << (char) 54 << (char) 4 << (char) 0 << (char) 0;
+}
+
+void WriteFileInfo(std::ofstream& fileout, uint16_t length, uint16_t width){
+    fileout << (char) 40 << (char) 0 << (char) 0 << (char) 0;
+    WriteNumberInFile(fileout, length);
+    WriteNumberInFile(fileout, width);
+    fileout << (char) 1 << (char) 0 << (char) 8 << (char) 0 << (char) 0 << (char) 0 << (char) 0
+            << (char) 0;
+    WriteNumberInFile(fileout, (uint64_t) length * (uint64_t) width);
+    fileout << (char) 0 << (char) 0 << (char) 0 << (char) 0 << (char) 0 << (char) 0 << (char) 0
+            << (char) 0;
+    fileout << (char) 0 << (char) 0 << (char) 0 << (char) 0 << (char) 0 << (char) 0 << (char) 0
+            << (char) 0;
+}
+
+void WriteColorTable(std::ofstream& fileout){
+    fileout << (char) 255 << (char) 255 << (char) 255 << (char) 0;
+    fileout << (char) 0 << (char) 128 << (char) 0 << (char) 0;
+    fileout << (char) 255 << (char) 0 << (char) 139 << (char) 0;
+    fileout << (char) 0 << (char) 255 << (char) 255 << (char) 0;
+    for(int i = 0; i < 252; i++) {
+        fileout << (char) 0 << (char) 0 << (char) 0 << (char) 0;
+    }
 }
 
 uint64_t pow(uint64_t a, uint64_t b) {
@@ -138,27 +168,9 @@ int main(int argc, char **argv) {
                     maxi++;
                     filename += ".bmp";
                     fileout.open(filename);
-                    fileout << "BM";
-                    WriteInFile(fileout, memory);
-                    fileout << (char) 0 << (char) 0 << (char) 0 << (char) 0 << (char) 54 << (char) 4
-                            << (char) 0 << (char) 0
-                            << (char) 40 << (char) 0 << (char) 0 << (char) 0;
-                    WriteInFile(fileout, length);
-                    WriteInFile(fileout, width);
-                    fileout << (char) 1 << (char) 0 << (char) 8 << (char) 0 << (char) 0 << (char) 0 << (char) 0
-                            << (char) 0;
-                    WriteInFile(fileout, (uint64_t) length * (uint64_t) width);
-                    fileout << (char) 0 << (char) 0 << (char) 0 << (char) 0 << (char) 0 << (char) 0 << (char) 0
-                            << (char) 0;
-                    fileout << (char) 0 << (char) 0 << (char) 0 << (char) 0 << (char) 0 << (char) 0 << (char) 0
-                            << (char) 0;
-                    fileout << (char) 255 << (char) 255 << (char) 255 << (char) 0;
-                    fileout << (char) 0 << (char) 128 << (char) 0 << (char) 0;
-                    fileout << (char) 255 << (char) 0 << (char) 139 << (char) 0;
-                    fileout << (char) 0 << (char) 255 << (char) 255 << (char) 0;
-                    for(int i = 0; i < 252; i++) {
-                        fileout << (char) 0 << (char) 0 << (char) 0 << (char) 0;
-                    }
+                    WriteFileHead(fileout, memory);
+                    WriteFileInfo(fileout, length, width);
+                    WriteColorTable(fileout);
                     uint64_t rowsize = length / 4;
                     if(length % 4 != 0)
                         rowsize++;
