@@ -2,7 +2,7 @@
 #include <fstream>
 #include <string>
 
-void record(std::ofstream &fileout, uint64_t memory) {
+void WriteInFile(std::ofstream& fileout, uint64_t memory) {
     uint64_t mem = memory;
     while (mem > 0) {
         fileout << (char) (mem % 256);
@@ -16,7 +16,7 @@ void record(std::ofstream &fileout, uint64_t memory) {
         fileout << (char) 0 << (char) 0 << (char) 0;
 }
 
-uint64_t pow(int a, int b) {
+uint64_t pow(uint64_t a, uint64_t b) {
     uint64_t result = 1;
     for (int i = 0; i < b; i++)
         result *= (uint64_t) a;
@@ -62,7 +62,7 @@ int main(int argc, char **argv) {
         std::cout << "output storage isn't present" << "\n";
     else {
         if (length != 0 && width != 0 && maxiter != -1 && freq != -1) {
-            uint64_t **array = new uint64_t * [width];
+            uint64_t **array = new uint64_t *[width];
             for (int i = 0; i < width; i++) {
                 array[i] = new uint64_t[length];
             }
@@ -70,7 +70,7 @@ int main(int argc, char **argv) {
                 for (int j = 0; j < length; j++)
                     array[i][j] = 0;
             }
-            uint64_t **workarray = new uint64_t * [width];
+            uint64_t **workarray = new uint64_t *[width];
             for (int i = 0; i < width; i++) {
                 workarray[i] = new uint64_t[length];
             }
@@ -85,7 +85,7 @@ int main(int argc, char **argv) {
             int y;
             char digit;
             std::string ss = "";
-            while (!filein.eof()) {
+            while (!filein.eof()) {//model.exe -l 2 -w 2 -m 2 -f 1 -i book3.tsv -o ./
                 digit = filein.get();
                 while (digit != '\t' && digit != '\n') {
                     ss += digit;
@@ -133,38 +133,51 @@ int main(int argc, char **argv) {
                     }
                 }
                 if ((freq == 0 && maxiter == 1) || (freq != 0 && fre % freq == 0)) {
-                    uint64_t memory = 54 + 4 * (uint64_t) width * (uint64_t) length;
+                    uint64_t memory = 54 + 256 * 4 + (uint64_t) width * (uint64_t) length;
                     filename += std::to_string(maxi);
                     maxi++;
                     filename += ".bmp";
                     fileout.open(filename);
                     fileout << "BM";
-                    record(fileout, memory);
-                    fileout << (char) 0 << (char) 0 << (char) 0 << (char) 0 << (char) 54 << (char) 0 << (char) 0
-                            << (char) 0
+                    WriteInFile(fileout, memory);
+                    fileout << (char) 0 << (char) 0 << (char) 0 << (char) 0 << (char) 54 << (char) 4
+                            << (char) 0 << (char) 0
                             << (char) 40 << (char) 0 << (char) 0 << (char) 0;
-                    record(fileout, length);
-                    record(fileout, width);
-                    fileout << (char) 1 << (char) 0 << (char) 32 << (char) 0 << (char) 0 << (char) 0 << (char) 0
+                    WriteInFile(fileout, length);
+                    WriteInFile(fileout, width);
+                    fileout << (char) 1 << (char) 0 << (char) 8 << (char) 0 << (char) 0 << (char) 0 << (char) 0
                             << (char) 0;
-                    record(fileout, (uint64_t) length * (uint64_t) width);
+                    WriteInFile(fileout, (uint64_t) length * (uint64_t) width);
                     fileout << (char) 0 << (char) 0 << (char) 0 << (char) 0 << (char) 0 << (char) 0 << (char) 0
                             << (char) 0;
                     fileout << (char) 0 << (char) 0 << (char) 0 << (char) 0 << (char) 0 << (char) 0 << (char) 0
                             << (char) 0;
+                    fileout << (char) 255 << (char) 255 << (char) 255 << (char) 0;
+                    fileout << (char) 0 << (char) 128 << (char) 0 << (char) 0;
+                    fileout << (char) 255 << (char) 0 << (char) 139 << (char) 0;
+                    fileout << (char) 0 << (char) 255 << (char) 255 << (char) 0;
+                    for(int i = 0; i < 252; i++) {
+                        fileout << (char) 0 << (char) 0 << (char) 0 << (char) 0;
+                    }
+                    uint64_t rowsize = length / 4;
+                    if(length % 4 != 0)
+                        rowsize++;
+                    rowsize*=4;
                     for (int i = 0; i < width; i++) {
                         for (int j = 0; j < length; j++) {
                             if (array[i][j] == 0)
-                                fileout << (char) 255 << (char) 255 << (char) 255 << (char) 0;
+                                fileout << (char) 0;
                             else if (array[i][j] == 1)
-                                fileout << (char) 0 << (char) 128 << (char) 0 << (char) 0;
+                                fileout << (char) 1;
                             else if (array[i][j] == 2)
-                                fileout << (char) 255 << (char) 0 << (char) 139 << (char) 0;
+                                fileout << (char) 2;
                             else if (array[i][j] == 3)
-                                fileout << (char) 0 << (char) 255 << (char) 255 << (char) 0;
+                                fileout << (char) 3;
                             else if (array[i][j] > 3)
-                                fileout << (char) 0 << (char) 0 << (char) 0 << (char) 0;
+                                fileout << (char) 4;
                         }
+                        for(int j = length; j < rowsize; j++)
+                            fileout << (char) 0;
                     }
                     fileout.close();
                 }
