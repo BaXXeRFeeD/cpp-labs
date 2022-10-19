@@ -2,46 +2,46 @@
 #include <fstream>
 #include <string>
 
-void WriteNumberInFile(std::ofstream& fileout, uint64_t memory) {
-    uint64_t mem = memory;
+void WriteNumberInFile(std::ofstream& fileout, uint64_t kMemory) {
+    uint64_t mem = kMemory;
     while (mem > 0) {
         fileout << (char) (mem % 256);
         mem /= 256;
     }
-    if (memory >= 65536 && memory < 16777215)
+    if (kMemory >= 65536 && kMemory < 16777215)
         fileout << (char) 0;
-    else if (memory >= 256 && memory < 65535)
+    else if (kMemory >= 256 && kMemory < 65535)
         fileout << (char) 0 << (char) 0;
-    else if (memory < 256)
+    else if (kMemory < 256)
         fileout << (char) 0 << (char) 0 << (char) 0;
 }
 
-void WriteFileHead(std::ofstream& fileout, uint64_t memory){
+void WriteFileHead(std::ofstream& fileout, uint64_t kMemory) {
     fileout << "BM";
-    WriteNumberInFile(fileout, memory);
+    WriteNumberInFile(fileout, kMemory);
     fileout << (char) 0 << (char) 0 << (char) 0 << (char) 0
             << (char) 54 << (char) 4 << (char) 0 << (char) 0;
 }
 
-void WriteFileInfo(std::ofstream& fileout, uint16_t length, uint16_t width){
+void WriteFileInfo(std::ofstream& fileout, uint16_t kLength, uint16_t kWidth) {
     fileout << (char) 40 << (char) 0 << (char) 0 << (char) 0;
-    WriteNumberInFile(fileout, length);
-    WriteNumberInFile(fileout, width);
+    WriteNumberInFile(fileout, kLength);
+    WriteNumberInFile(fileout, kWidth);
     fileout << (char) 1 << (char) 0 << (char) 8 << (char) 0 << (char) 0 << (char) 0 << (char) 0
             << (char) 0;
-    WriteNumberInFile(fileout, (uint64_t) length * (uint64_t) width);
+    WriteNumberInFile(fileout, (uint64_t) kLength * (uint64_t) kWidth);
     fileout << (char) 0 << (char) 0 << (char) 0 << (char) 0 << (char) 0 << (char) 0 << (char) 0
             << (char) 0;
     fileout << (char) 0 << (char) 0 << (char) 0 << (char) 0 << (char) 0 << (char) 0 << (char) 0
             << (char) 0;
 }
 
-void WriteColorTable(std::ofstream& fileout){
+void WriteColorTable(std::ofstream& fileout) {
     fileout << (char) 255 << (char) 255 << (char) 255 << (char) 0;
     fileout << (char) 0 << (char) 128 << (char) 0 << (char) 0;
     fileout << (char) 255 << (char) 0 << (char) 139 << (char) 0;
     fileout << (char) 0 << (char) 255 << (char) 255 << (char) 0;
-    for(int i = 0; i < 252; i++) {
+    for (int i = 0; i < 252; i++) {
         fileout << (char) 0 << (char) 0 << (char) 0 << (char) 0;
     }
 }
@@ -53,7 +53,7 @@ uint64_t pow(uint64_t a, uint64_t b) {
     return result;
 }
 
-uint64_t number(std::string str) {
+uint64_t toNumber(std::string str) {
     uint64_t result = 0;
     for (int i = str.size() - 1; i >= 0; i--) {
         result += (uint64_t) (str[i] - '0') * pow(10, str.size() - i - 1);
@@ -62,121 +62,130 @@ uint64_t number(std::string str) {
 }
 
 int main(int argc, char **argv) {
-    uint16_t length = 0;
-    uint16_t width = 0;
-    std::string input;
-    std::string output;
-    int maxiter = -1;
-    int freq = -1;
+    uint16_t kLength = 0;
+    uint16_t kWidth = 0;
+    std::string kInput;
+    std::string kOutput;
+    int maxiter = 0;
+    int freq = 0;
     for (int i = 1; i < argc; i += 2) {
         std::string argv1 = argv[i];
         std::string argv2 = argv[i + 1];
-        if (argv1 == "-l" || argv1 == "--length")
-            length = stoi(argv2);
-        else if (argv1 == "-w" || argv1 == "--width")
-            width = stoi(argv2);
-        else if (argv1 == "-i" || argv1 == "--input")
-            input = argv[i + 1];
-        else if (argv1 == "-o" || argv1 == "-output")
-            output = argv[i + 1];
+        if (argv1 == "-l" || argv1 == "--kLength")
+            kLength = stoi(argv2);
+        else if (argv1 == "-w" || argv1 == "--kWidth")
+            kWidth = stoi(argv2);
+        else if (argv1 == "-i" || argv1 == "--kInput")
+            kInput = argv[i + 1];
+        else if (argv1 == "-o" || argv1 == "-kOutput")
+            kOutput = argv[i + 1];
         else if (argv1 == "-m" || argv1 == "--max-iter")
             maxiter = stoi(argv2);
         else if (argv1 == "-f" || argv1 == "--freq")
             freq = stoi(argv2);
     }
-    std::ifstream filein(input, std::fstream::in);
+    uint64_t kRowsize = kLength / 4;
+    if (kLength % 4 != 0)
+        kRowsize++;
+    kRowsize *= 4;
+    std::ifstream kFilein(kInput, std::fstream::in);
     std::ofstream fileout;
-    if (filein.fail()) {
-        std::cout << input << " isn't present" << "\n";
-    } else if (output.empty())
-        std::cout << "output storage isn't present" << "\n";
+    if (kFilein.fail()) {
+        std::cout << kInput << " isn't present" << "\n";
+    } else if (kOutput.empty())
+        std::cout << "kOutput storage isn't present" << "\n";
     else {
-        if (length != 0 && width != 0 && maxiter != -1 && freq != -1) {
-            uint64_t **array = new uint64_t *[width];
-            for (int i = 0; i < width; i++) {
-                array[i] = new uint64_t[length];
+        if (kLength != 0 && kWidth != 0) {
+            uint64_t **array = new uint64_t *[kWidth];
+            for (int i = 0; i < kWidth; i++) {
+                array[i] = new uint64_t[kLength];
             }
-            for (int i = 0; i < width; i++) {
-                for (int j = 0; j < length; j++)
+            for (int i = 0; i < kWidth; i++) {
+                for (int j = 0; j < kLength; j++)
                     array[i][j] = 0;
             }
-            uint64_t **workarray = new uint64_t *[width];
-            for (int i = 0; i < width; i++) {
-                workarray[i] = new uint64_t[length];
+            uint64_t **workarray = new uint64_t *[kWidth];
+            for (int i = 0; i < kWidth; i++) {
+                workarray[i] = new uint64_t[kLength];
             }
-            for (int i = 0; i < width; i++) {
-                for (int j = 0; j < length; j++)
+            for (int i = 0; i < kWidth; i++) {
+                for (int j = 0; j < kLength; j++)
                     workarray[i][j] = 0;
             }
             std::string filename;
-            int maxi = 1;
-            int fre = 1;
-            int x;
-            int y;
+            int filenumber = 1;
+            int freqnumber = 1;
+            uint16_t x;
+            uint16_t y;
             char digit;
-            std::string ss = "";
-            while (!filein.eof()) {//model.exe -l 2 -w 2 -m 2 -f 1 -i book3.tsv -o ./
-                digit = filein.get();
+            std::string number = "";
+            while (!kFilein.eof()) {
+                digit = kFilein.get();
                 while (digit != '\t' && digit != '\n') {
-                    ss += digit;
-                    digit = filein.get();
+                    number += digit;
+                    digit = kFilein.get();
                 }
-                x = number(ss);
-                ss = "";
-                digit = filein.get();
+                x = toNumber(number);
+                number = "";
+                digit = kFilein.get();
                 while (digit != '\t' && digit != '\n') {
-                    ss += digit;
-                    digit = filein.get();
+                    number += digit;
+                    digit = kFilein.get();
                 }
-                y = number(ss);
-                ss = "";
-                digit = filein.get();
-                while (digit != '\t' && digit != '\n' && !filein.eof()) {
-                    ss += digit;
-                    digit = filein.get();
+                y = toNumber(number);
+                number = "";
+                digit = kFilein.get();
+                while (digit != '\t' && digit != '\n' && !kFilein.eof()) {
+                    number += digit;
+                    digit = kFilein.get();
                 }
-                array[y - 1][x - 1] = number(ss);
+                array[y - 1][x - 1] = toNumber(number);
                 workarray[y - 1][x - 1] = array[y - 1][x - 1];
-                ss = "";
+                number = "";
+
             }
-            while (maxiter > 0) {
-                filename = output;
+            bool reset = false;
+            bool iterzero = false;
+            if (maxiter == 0) {
+                reset = true;
+                iterzero = true;
+            }
+            while (maxiter > 0 || reset) {
+                filename = kOutput;
                 filename += "\\picture";
-                for (int i = 0; i < width; i++) {
-                    for (int j = 0; j < length; j++) {
+                filename += std::to_string(filenumber);
+                filename += ".bmp";
+                reset = false;
+                for (int i = 0; i < kWidth; i++) {
+                    for (int j = 0; j < kLength; j++) {
                         if (array[i][j] > 3) {
                             workarray[i][j] -= 4;
-                            if (i + 1 < width)
+                            reset = true;
+                            if (i + 1 < kWidth)
                                 workarray[i + 1][j]++;
                             if (i - 1 >= 0)
                                 workarray[i - 1][j]++;
-                            if (j + 1 < length)
+                            if (j + 1 < kLength)
                                 workarray[i][j + 1]++;
                             if (j - 1 >= 0)
                                 workarray[i][j - 1]++;
                         }
                     }
                 }
-                for (int i = 0; i < width; i++) {
-                    for (int j = 0; j < length; j++) {
+                for (int i = 0; i < kWidth; i++) {
+                    for (int j = 0; j < kLength; j++) {
                         array[i][j] = workarray[i][j];
                     }
                 }
-                if ((freq == 0 && maxiter == 1) || (freq != 0 && fre % freq == 0)) {
-                    uint64_t memory = 54 + 256 * 4 + (uint64_t) width * (uint64_t) length;
-                    filename += std::to_string(maxi);
-                    maxi++;
-                    filename += ".bmp";
+                if ((((freq == 0 && maxiter == 1) || (freq != 0 && freqnumber % freq == 0)) && !iterzero) ||
+                    (iterzero && !reset)) {
+                    uint64_t memory = 54 + 256 * 4 + (uint64_t) kWidth * (uint64_t) kLength;
                     fileout.open(filename);
                     WriteFileHead(fileout, memory);
-                    WriteFileInfo(fileout, length, width);
+                    WriteFileInfo(fileout, kLength, kWidth);
                     WriteColorTable(fileout);
-                    uint64_t rowsize = length / 4;
-                    if(length % 4 != 0)
-                        rowsize++;
-                    rowsize*=4;
-                    for (int i = 0; i < width; i++) {
-                        for (int j = 0; j < length; j++) {
+                    for (int i = 0; i < kWidth; i++) {
+                        for (int j = 0; j < kLength; j++) {
                             if (array[i][j] == 0)
                                 fileout << (char) 0;
                             else if (array[i][j] == 1)
@@ -188,13 +197,14 @@ int main(int argc, char **argv) {
                             else if (array[i][j] > 3)
                                 fileout << (char) 4;
                         }
-                        for(int j = length; j < rowsize; j++)
+                        for (int j = kLength; j < kRowsize; j++)
                             fileout << (char) 0;
                     }
                     fileout.close();
+                    filenumber++;
                 }
                 maxiter--;
-                fre++;
+                freqnumber++;
             }
         } else {
             std::cout << "Error parameters";
