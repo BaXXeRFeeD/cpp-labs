@@ -50,7 +50,6 @@ void Parsing(int argc, char **argv, Archive &app) {
             app.concatenate = true;
         } else if (arg == "-f") {
             app.archive_name = argv[i + 1];
-            app.archive_name += ".hrc";
             i++;
         } else if (arg == "-w" || arg == "--word") {
             arg = argv[i + 1];
@@ -58,26 +57,172 @@ void Parsing(int argc, char **argv, Archive &app) {
             i++;
             ControlBytes(app.word, app);
         } else if (arg.substr(0, 7) == "--file=")
-            app.archive_name = arg.substr(7, arg.length() - 6) + ".hrc";
+            app.archive_name = arg.substr(7, arg.length() - 6);
         else
             app.files.push_back(arg);
     }
 }
 
+std::string Sizesearch(std::ifstream &archive, std::vector<bool> &ch, std::vector<bool> &header_archive) {
+    std::string size = "";
+    while (true) {
+        for (int i = 0; i < 3; i++) {
+            unsigned char c = archive.get();
+            for (int j = 7; j >= 0; j--) {
+                ch.push_back(c % 2);
+                c /= 2;
+            }
+            for (int j = 0; j < 8; j++) {
+                header_archive.push_back(ch.back());
+                ch.pop_back();
+            }
+        }
+        unsigned char c = 0;
+        int z = 2;
+        for (int j = 0; j < 8; j++) {
+            c *= 2;
+            c += header_archive[z];
+            z += 3;
+        }
+        header_archive.clear();
+        if (c != ' ')
+            size += c;
+        else
+            break;
+    }
+    return size;
+}
+
+std::string Appword(Archive &app, std::ifstream &archive, std::string size, std::vector<bool> &ch,
+                    std::vector<bool> &header_archive, int &iter) {
+    std::string str_search = "";
+    for (int i = 0; i < stoi(size) / 3; i++) {
+        for (int t = 0; t < 3; t++) {
+            unsigned char c = archive.get();
+            for (int j = 7; j >= 0; j--) {
+                ch.push_back(c % 2);
+                c /= 2;
+            }
+            for (int j = 0; j < 8; j++) {
+                header_archive.push_back(ch.back());
+                ch.pop_back();
+            }
+        }
+        unsigned char c = 0;
+        int z = 2;
+        for (int j = 0; j < 8; j++) {
+            c *= 2;
+            c += header_archive[z];
+            z += 3;
+        }
+        header_archive.clear();
+        if (c != ' ')
+            str_search += c;
+        else {
+            iter = i + 1;
+            break;
+        }
+    }
+    return str_search;
+}
+
+std::string Filescount(std::ifstream &archive, std::string size, int &iter, std::vector<bool> &ch,
+                       std::vector<bool> &header_archive) {
+    std::string str_search = "";
+    for (int i = iter; i < stoi(size) / 3; i++) {
+        for (int t = 0; t < 3; t++) {
+            unsigned char c = archive.get();
+            for (int j = 7; j >= 0; j--) {
+                ch.push_back(c % 2);
+                c /= 2;
+            }
+            for (int j = 0; j < 8; j++) {
+                header_archive.push_back(ch.back());
+                ch.pop_back();
+            }
+        }
+        unsigned char c = 0;
+        int z = 2;
+        for (int j = 0; j < 8; j++) {
+            c *= 2;
+            c += header_archive[z];
+            z += 3;
+        }
+        header_archive.clear();
+        if (c != ' ')
+            str_search += c;
+        else {
+            iter = i + 1;
+            break;
+        }
+    }
+    return str_search;
+}
+
+void Filesinfoparsing(Archive &app, int &files, int &iter, std::ifstream &archive, std::string size, std::vector<bool> &ch,
+                      std::vector<bool> &header_archive, std::vector<int> &file_size) {
+    std::string str_search = "";
+    while (files > 0) {
+        for (int i = iter; i < stoi(size) / 3; i++) {
+            for (int t = 0; t < 3; t++) {
+                unsigned char c = archive.get();
+                for (int j = 7; j >= 0; j--) {
+                    ch.push_back(c % 2);
+                    c /= 2;
+                }
+                for (int j = 0; j < 8; j++) {
+                    header_archive.push_back(ch.back());
+                    ch.pop_back();
+                }
+            }
+            unsigned char c = 0;
+            int z = 2;
+            for (int j = 0; j < 8; j++) {
+                c *= 2;
+                c += header_archive[z];
+                z += 3;
+            }
+            header_archive.clear();
+            if (c != ' ')
+                str_search += c;
+            else {
+                iter = i + 1;
+                if (files % 2 == 0)
+                    app.files.push_back(str_search);
+                else
+                    file_size.push_back(stoi(str_search));
+                str_search = "";
+                break;
+            }
+        }
+        files--;
+    }
+    file_size.push_back(stoi(str_search));
+}
+
 void List(Archive &app) {
-    std::fstream archive(app.archive_name);
-    std::string str;
-    std::getline(archive, str);
+    std::ifstream archive(app.archive_name, std::ifstream::binary);
+    std::vector<bool> header_archive;
+    std::vector<int> file_size;
+    std::vector<bool> ch;
+
+    std::string size = Sizesearch(archive, ch, header_archive);
+    int iter = 0;
+
+    app.word = std::stoi(Appword(app, archive, size, ch, header_archive, iter));
+
+    int files = stoi(Filescount(archive, size, iter, ch, header_archive));
+
+    files *= 2;
+
+    Filesinfoparsing(app, files, iter, archive, size, ch, header_archive, file_size);
+    for(int i = 0; i < app.files.size(); i++){
+        std::cout << app.files[i] << "\n";
+    }
 }
 
 void Addfile(std::vector<std::string> &files) {
 
-    std::bitset<32> bts1;
-}
-
-int Filesize(std::string filename) {
-    int count = 0;
-    return count;
 }
 
 namespace fs = std::filesystem;
@@ -142,79 +287,12 @@ void Headerwrite(Archive app, std::ofstream &archive) {
     }
 }
 
-//void Fileheader(std::string filename, std::ofstream &archive, Archive app) {
-//    std::ifstream file(filename, std::ios::ate);
-//    std::string str = Filenaming(filename);
-//    str = std::to_string(file.tellg()) + " ";
-//    std::vector<bool> output;
-//    std::vector<bool> container;
-//    std::vector<bool> cur_ch;
-//    for (int i = 0; i < str.size(); i++) {
-//        char c = str[i];
-//        for (int j = 7; j >= 0; j--) {
-//            cur_ch.push_back(c % 2);
-//            c /= 2;
-//        }
-//        while (!cur_ch.empty()) {
-//            while (container.size() != app.word && !cur_ch.empty()) {
-//                container.push_back(cur_ch.back());
-//                cur_ch.pop_back();
-//            }
-//            if (container.size() == app.word) {
-//                for (int z = 1; z <= pow(2, app.bytes - 1); z *= 2) {
-//                    container.insert(container.begin() + z - 1, 0);
-//                }
-//                for (int z = 1; z <= pow(2, app.bytes - 1); z *= 2) {
-//                    int count = 0;
-//                    for (int j = z - 1; j < app.word + app.bytes; j += 2 * z) {
-//                        for (int t = j; t < j + z && t < app.word + app.bytes; t++)
-//                            count += container[t];
-//                    }
-//                    if (count % 2 != 0)
-//                        container[z - 1] = 1;
-//                }
-//                for (int i = 0; i < container.size(); i++) {
-//                    output.push_back(container.front());
-//                    container.erase(container.begin());
-//                }
-//                if (!cur_ch.empty()) {
-//                    while (container.size() != app.word && !cur_ch.empty()) {
-//                        container.push_back(cur_ch.back());
-//                        cur_ch.pop_back();
-//                    }
-//                }
-//            }
-//        }
-//        while (output.size() >= 8) {
-//            unsigned char ch = 0;
-//            for (int j = 0; j < 8; j++) {
-//                ch *= 2;
-//                ch += output.front();
-//                output.erase(output.begin());
-//            }
-//            archive << ch;
-//        }
-//    }
-//    if (!output.empty()) {
-//        while (output.size() != 8)
-//            output.push_back(0);
-//        unsigned char ch = 0;
-//        for (int j = 0; j < 8; j++) {
-//            ch *= 2;
-//            ch += output.front();
-//            output.erase(output.begin());
-//        }
-//        archive << ch;
-//    }
-//    file.close();
-//}
-
 void Filewrite(std::string filename, std::ofstream &archive, Archive app) {
-    std::ifstream file(filename);
+    std::ifstream file(filename, std::ifstream::binary);
     std::vector<bool> output;
     std::vector<bool> container;
     std::vector<bool> cur_ch;
-    char c = file.get();
+    unsigned char c = file.get();
     while (!file.eof()) {
         for (int j = 7; j >= 0; j--) {
             cur_ch.push_back(c % 2);
@@ -242,12 +320,6 @@ void Filewrite(std::string filename, std::ofstream &archive, Archive app) {
                     output.push_back(container.front());
                     container.erase(container.begin());
                 }
-//                if (!cur_ch.empty()) {
-//                    while (container.size() != app.word && !cur_ch.empty()) {
-//                        container.push_back(cur_ch.back());
-//                        cur_ch.pop_back();
-//                    }
-//                }
             }
         }
         while (output.size() >= 8) {
@@ -260,6 +332,35 @@ void Filewrite(std::string filename, std::ofstream &archive, Archive app) {
             archive << ch;
         }
         c = file.get();
+    }
+    if (!container.empty()) {
+        while (container.size() != app.word)
+            container.push_back(0);
+        for (int z = 1; z <= pow(2, app.bytes - 1); z *= 2) {
+            container.insert(container.begin() + z - 1, 0);
+        }
+        for (int z = 1; z <= pow(2, app.bytes - 1); z *= 2) {
+            int count = 0;
+            for (int j = z - 1; j < app.word + app.bytes; j += 2 * z) {
+                for (int t = j; t < j + z && t < app.word + app.bytes; t++)
+                    count += container[t];
+            }
+            if (count % 2 != 0)
+                container[z - 1] = 1;
+        }
+        for (int i = 0; i < app.word + app.bytes; i++) {
+            output.push_back(container.front());
+            container.erase(container.begin());
+        }
+    }
+    while (output.size() >= 8) {
+        unsigned char ch = 0;
+        for (int j = 0; j < 8; j++) {
+            ch *= 2;
+            ch += output.front();
+            output.erase(output.begin());
+        }
+        archive << ch;
     }
     if (!output.empty()) {
         while (output.size() != 8)
@@ -277,7 +378,7 @@ void Filewrite(std::string filename, std::ofstream &archive, Archive app) {
 
 void create_archive(Archive app) {
     std::ofstream archive;
-    archive.open(app.archive_name);
+    archive.open(app.archive_name, std::ofstream::binary | std::ofstream::trunc);
     Headerwrite(app, archive);
     for (int i = 0; i < app.files.size(); i++) {
         Filewrite(app.files[i], archive, app);
@@ -285,140 +386,33 @@ void create_archive(Archive app) {
 }
 
 void Extract(Archive &app) {
-    std::ifstream archive(app.archive_name);
-    std::string size = "";
+    fs::path arch{app.archive_name};
+    std::ifstream archive(app.archive_name, std::ifstream::binary);
     std::vector<bool> header_archive;
     std::vector<int> file_size;
-
     std::vector<bool> ch;
-    while (true) {
-        for (int i = 0; i < 3; i++) {
-            unsigned char c = archive.get();
-            for (int j = 7; j >= 0; j--) {
-                ch.push_back(c % 2);
-                c /= 2;
-            }
-            for (int j = 0; j < 8; j++) {
-                header_archive.push_back(ch.back());
-                ch.pop_back();
-            }
-        }
-        unsigned char c = 0;
-        int z = 2;
-        for (int j = 0; j < 8; j++) {
-            c *= 2;
-            c += header_archive[z];
-            z += 3;
-        }
-        header_archive.clear();
-        if (c != ' ')
-            size += c;
-        else
-            break;
-    }
 
+    std::string size = Sizesearch(archive, ch, header_archive);
     int iter = 0;
-    std::string str_search = "";
-    for (int i = 0; i < stoi(size) / 3; i++) {
-        for (int t = 0; t < 3; t++) {
-            unsigned char c = archive.get();
-            for (int j = 7; j >= 0; j--) {
-                ch.push_back(c % 2);
-                c /= 2;
-            }
-            for (int j = 0; j < 8; j++) {
-                header_archive.push_back(ch.back());
-                ch.pop_back();
-            }
-        }
-        unsigned char c = 0;
-        int z = 2;
-        for (int j = 0; j < 8; j++) {
-            c *= 2;
-            c += header_archive[z];
-            z += 3;
-        }
-        header_archive.clear();
-        if (c != ' ')
-            str_search += c;
-        else {
-            iter = i + 1;
-            break;
-        }
-    }
-    app.word = std::stoi(str_search);
 
-    str_search = "";
-    for (int i = iter; i < stoi(size) / 3; i++) {
-        for (int t = 0; t < 3; t++) {
-            unsigned char c = archive.get();
-            for (int j = 7; j >= 0; j--) {
-                ch.push_back(c % 2);
-                c /= 2;
-            }
-            for (int j = 0; j < 8; j++) {
-                header_archive.push_back(ch.back());
-                ch.pop_back();
-            }
-        }
-        unsigned char c = 0;
-        int z = 2;
-        for (int j = 0; j < 8; j++) {
-            c *= 2;
-            c += header_archive[z];
-            z += 3;
-        }
-        header_archive.clear();
-        if (c != ' ')
-            str_search += c;
-        else {
-            iter = i + 1;
-            break;
-        }
-    }
-    int files = stoi(str_search);
-    str_search = "";
+    app.word = std::stoi(Appword(app, archive, size, ch, header_archive, iter));
+
+    int files = stoi(Filescount(archive, size, iter, ch, header_archive));
+
     files *= 2;
-    while (files > 0) {
-        for (int i = iter; i < stoi(size) / 3; i++) {
-            for (int t = 0; t < 3; t++) {
-                unsigned char c = archive.get();
-                for (int j = 7; j >= 0; j--) {
-                    ch.push_back(c % 2);
-                    c /= 2;
-                }
-                for (int j = 0; j < 8; j++) {
-                    header_archive.push_back(ch.back());
-                    ch.pop_back();
-                }
-            }
-            unsigned char c = 0;
-            int z = 2;
-            for (int j = 0; j < 8; j++) {
-                c *= 2;
-                c += header_archive[z];
-                z += 3;
-            }
-            header_archive.clear();
-            if (c != ' ')
-                str_search += c;
-            else {
-                iter = i + 1;
-                if (files % 2 == 0)
-                    app.files.push_back(str_search);
-                else
-                    file_size.push_back(stoi(str_search));
-                str_search = "";
-                break;
-            }
-        }
-        files--;
-    }
-    ControlBytes(app.word, app);
-    file_size.push_back(stoi(str_search));
 
+    Filesinfoparsing(app, files, iter, archive, size, ch, header_archive, file_size);
+
+    for(int i = 0; i < app.files.size(); i++){
+        std::string s = app.files[i];
+        app.files[i] = arch.parent_path().string();
+        app.files[i] += "\\";
+        app.files[i] += s;
+    }
+
+    ControlBytes(app.word, app);
     for (int i = 0; i < app.files.size(); i++) {
-        std::ofstream file(app.files[i]);
+        std::ofstream file(app.files[i], std::ofstream::binary | std::ofstream::trunc);
         std::vector<bool> container;
         std::vector<bool> output;
         ch.clear();
@@ -435,8 +429,10 @@ void Extract(Archive &app) {
                     ch.pop_back();
                 }
                 if (container.size() == app.word + app.bytes) {
+                    int r = 0;
                     for (int z = 1; z <= pow(2, app.bytes - 1); z *= 2) {
-                        container.erase(container.begin() + z - 1);
+                        container.erase(container.begin() + z - r - 1);
+                        r++;
                     }
                     for (int z = 0; z < app.word; z++) {
                         output.push_back(container.front());
@@ -461,9 +457,10 @@ void Extract(Archive &app) {
 void hamarc(Archive app) {
     if (app.create) {
         create_archive(app);
-    }
-    if (app.extract) {
+    } else if (app.extract) {
         Extract(app);
+    } else if (app.list) {
+        List(app);
     }
 }
 
