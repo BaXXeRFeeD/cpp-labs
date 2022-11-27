@@ -16,7 +16,7 @@ int main(int argc, char** argv) {
     ArgumentParser::ArgParser parser("Program");
     parser.AddIntArgument("N").MultiValue(1).Positional().StoreValues(values);
     parser.AddFlag("sum", "add args").StoreValue(opt.sum);
-    parser.AddFlag("mult", "multiply args").StoreValue(opt.sum);
+    parser.AddFlag("mult", "multiply args").StoreValue(opt.mult);
     parser.AddHelp('h', "help", "Program accumulate arguments");
 
     if(!parser.Parse(argc, argv)) {
