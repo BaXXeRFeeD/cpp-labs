@@ -54,7 +54,7 @@ TEST(ArgParserTestSuite, NoDefaultTest) {
 }
 
 
-TEST(ArgParserTestSuite, StoreValueTest) {
+ TEST(ArgParserTestSuite, StoreValueTest) {
     ArgParser parser("My Parser");
     std::string value;
     parser.AddStringArgument("param1").StoreValue(value);
@@ -132,7 +132,7 @@ TEST(ArgParserTestSuite, FlagsTest) {
 TEST(ArgParserTestSuite, PositionalArgTest) {
     ArgParser parser("My Parser");
     std::vector<int> values;
-    parser.AddIntArgument("Param1").MultiValue(1).Positional().StoreValue(values);
+    parser.AddIntArgument("Param1").MultiValue(1).Positional().StoreValues(values);
 
     ASSERT_TRUE(parser.Parse(SplitString("app 1 2 3 4 5")));
     ASSERT_EQ(values[0], 1);
@@ -156,20 +156,20 @@ TEST(ArgParserTestSuite, HelpStringTest) {
     parser.AddStringArgument('i', "input", "File path for input file").MultiValue(1);
     parser.AddFlag('s', "flag1", "Use some logic").Default(true);
     parser.AddFlag('p', "flag2", "Use some logic");
-    parser.AddIntArgument("numer", "Some Number");
+    parser.AddIntArgument("number", "Some Number");
 
 
     ASSERT_TRUE(parser.Parse(SplitString("app --help")));
-    // ASSERT_EQ(
-    //     parser.HelpDescription(),
-    //     "My Parser\n"
-    //     "Some Description about program\n"
-    //     "\n"
-    //     "-i,  --input=<string>,  File path for input file [repeated, min args = 1]\n"
-    //     "-s,  --flag1,  Use some logic [default = true]\n"
-    //     "-p,  --flag2,  Use some logic\n"
-    //     "     --number=<int>,  Some Number\n"
-    //     "\n"
-    //     "-h, --help Display this help and exit\n"
-    // );
+     ASSERT_EQ(
+         parser.HelpDescription(),
+         "My Parser\n"
+         "Some Description about program\n"
+         "\n"
+         "-i,  --input=<string>,  File path for input file [repeated, min args = 1]\n"
+         "-s,  --flag1,  Use some logic [default = true]\n"
+         "-p,  --flag2,  Use some logic\n"
+         "     --number=<int>,  Some Number\n"
+         "\n"
+         "-h,  --help Display this help and exit\n"
+     );
 }
