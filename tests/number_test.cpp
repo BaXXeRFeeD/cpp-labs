@@ -73,16 +73,6 @@ TEST_P(OperationTestsSuite, SubstTest) {
     ASSERT_EQ(result, expected);
 }
 
-TEST_P(OperationTestsSuite, MultTest) {
-    uint2022_t a = from_string(std::get<0>(GetParam()));
-    uint2022_t b = from_string(std::get<1>(GetParam()));
-
-    uint2022_t result = a * b;
-    uint2022_t expected = from_string((std::get<4>(GetParam())));
-
-    ASSERT_EQ(result, expected);
-}
-
 INSTANTIATE_TEST_SUITE_P(
     Group,
     OperationTestsSuite,
