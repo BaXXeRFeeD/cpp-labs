@@ -56,7 +56,7 @@ class OperationTestsSuite
 TEST_P(OperationTestsSuite, AddTest) {
     uint2022_t a = from_string(std::get<0>(GetParam()));
     uint2022_t b = from_string(std::get<1>(GetParam()));
-    uint2022_t c = from_string("1);
+    uint2022_t c = from_string("1");
 
     uint2022_t result = a + b + c;
     uint2022_t expected = from_string((std::get<2>(GetParam())));
