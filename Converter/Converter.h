@@ -8,6 +8,8 @@ class Converter {
     unsigned char flag;
     std::ifstream file;
 
+    int find;
+
 public:
     MyVector frames_storage;
 
@@ -19,4 +21,6 @@ public:
     void GetLength(unsigned char length_bits[4]);
 
     void Parsing();
+
+    void Output(char *filename);
 };
