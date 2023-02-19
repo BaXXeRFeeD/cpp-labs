@@ -25,6 +25,9 @@ void Converter::FindID3() {
         }
     }
     GetLength(length_bits);
+//    if((flag / 64) % 2 == 1){
+//
+//    }
 }
 
 void Converter::GetLength(unsigned char length_bits[4]) {

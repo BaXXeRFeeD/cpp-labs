@@ -4,7 +4,6 @@ public:
     int length = 0;
     unsigned char flag1 = 0;
     unsigned char flag2 = 0;
-    unsigned char code = 0;
     char* info = nullptr;
 };
 
