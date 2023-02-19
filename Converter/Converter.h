@@ -1,4 +1,21 @@
+#include "MyVector.h"
+#include <fstream>
 #include <string>
+
 class Converter {
-    std::string filename;
+    char* file_name;
+    int length;
+    unsigned char flag;
+    std::ifstream file;
+
+    MyVector frames_storage;
+
+public:
+    Converter(char *filename);
+
+    void FindID3();
+
+    void GetLength(unsigned char length_bits[4]);
+
+    void Parsing();
 };
