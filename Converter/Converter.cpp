@@ -1,5 +1,5 @@
 #include "Converter.h"
-
+#include <iostream>
 Converter::Converter(char* file_name) {
     this->file_name = file_name;
     file.open(this->file_name, std::ifstream::binary);
@@ -33,14 +33,21 @@ void Converter::GetLength(unsigned char length_bits[4]) {
 }
 
 void Converter::Parsing() {
-    while(file.tellg() <= length){
+    while(frames_storage.cur_length < 1){
         Frame frame;
         for(int i = 0; i < 4; i++)
             frame.frame_name[i] = file.get();
-        for(int i = 0; i < 4; i++)
+        for(int i = 3; i >= 0; i--)
             frame.length += file.get() * pow(2, 7 * i);
         frame.flag1 = file.get();
         frame.flag2 = file.get();
+        frame.info = new char[frame.length];
+
+        for(int i = 0; i < frame.length; i++){
+            frame.info[i] = file.get();
+        }
+        std::cout << frame.length << " ";
+
         frames_storage.add(frame);
     }
 }

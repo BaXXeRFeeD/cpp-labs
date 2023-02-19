@@ -8,6 +8,7 @@ class Converter {
     unsigned char flag;
     std::ifstream file;
 
+public:
     MyVector frames_storage;
 
 public:

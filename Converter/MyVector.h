@@ -5,7 +5,7 @@ public:
     unsigned char flag1 = 0;
     unsigned char flag2 = 0;
     unsigned char code = 0;
-    char* info = 0;
+    char* info = nullptr;
 };
 
 class MyVector {
