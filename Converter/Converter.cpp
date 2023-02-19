@@ -6,27 +6,6 @@ Converter::Converter(char *file_name) {
     file.open(this->file_name, std::ifstream::binary);
 }
 
-void Converter::Output(char *filename) {
-    std::ofstream output(filename, std::ofstream::binary | std::ofstream::trunc);
-    for (int i = 0; i < frames_storage.cur_length; i++) {
-        if (frames_storage.storage[i].frame_name[0] == 'T') {
-            for (int j = 1; j < frames_storage.cur_length; j++)
-                output << frames_storage.storage->info[j];
-        } else if (frames_storage.storage[i].frame_name[0] == 'W') {
-            if (frames_storage.storage[i].frame_name[1] == 'X' && frames_storage.storage[i].frame_name[2] == 'X' &&
-                frames_storage.storage[i].frame_name[3] == 'X') {
-                for (int j = 1; j < frames_storage.cur_length; j++)
-                    output << frames_storage.storage->info[j];
-            } else {
-                for (int j = 0; j < frames_storage.cur_length; j++)
-                    output << frames_storage.storage->info[j];
-            }
-        } else
-            for (int j = 0; j < frames_storage.cur_length; j++)
-                output << frames_storage.storage->info[j];
-    }
-}
-
 void Converter::FindID3() {
 
     bool while_flag = true;
