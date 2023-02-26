@@ -1,10 +1,11 @@
+#include <string>
 class Frame {
 public:
-    char frame_name[4];
+    std::string frame_name;
     int length = 0;
     unsigned char flag1 = 0;
     unsigned char flag2 = 0;
-    char* info = nullptr;
+    unsigned char* info = nullptr;
 };
 
 class MyVector {

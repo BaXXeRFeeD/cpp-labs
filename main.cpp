@@ -3,9 +3,17 @@
 #include <iostream>
 
 int main(int argc, char **argv) {
-    Converter converter("tag.mp3");
+    char* string = "";
+    for (int i = 1; i < argc; i++) {
+        if (argv[i][1] == 'i')
+            string = argv[i + 1];
+    }
+    Converter converter(string);
     converter.FindID3();
     converter.Parsing();
-    for(int i = 0; i < converter.frames_storage.storage[0].length; i++)
-        std::cout << converter.frames_storage.storage[0].info[i];
+    for(int i = 1; i < argc; i++){
+        if (argv[i][1] == 'o') {
+            converter.Output(argv[i + 1]);
+        }
+    }
 }

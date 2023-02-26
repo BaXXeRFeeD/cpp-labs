@@ -1,5 +1,4 @@
 #include "MyVector.h"
-#include <iostream>
 
 void MyVector::add(Frame new_frame) {
     if (storage == nullptr) {

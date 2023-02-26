@@ -1,8 +1,8 @@
 #include "MyVector.h"
 #include <fstream>
-#include <string>
 
 class Converter {
+public:
     char* file_name;
     int length;
     unsigned char flag;
@@ -13,7 +13,8 @@ class Converter {
 public:
     MyVector frames_storage;
 
-public:
+    Converter();
+
     Converter(char *filename);
 
     void FindID3();
