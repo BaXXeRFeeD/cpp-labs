@@ -1,0 +1,39 @@
+#pragma once
+
+#include <cinttypes>
+#include <iostream>
+#include <array>
+#include <cmath>
+
+constexpr char *MAXIMUM = (char*) "481560916771158684800786922703235625631274322714142263414417884163925873322306437689024231009526751394401758326916367106052034484602375642882110959089521812209947069992139877256008949136579813164413834190131240610432508865633901300457687591589632190325582710683886781973951695733384278544896131740867054246692573031629150247882082682647773168904426336814855367810693467547461780797071163567159452928068892906992787178135839959347223507647240845924670958716173279750751341651541295792537288393481542519773223140547524361834615428274169543954961376881442030303829940191406452725012875774576546969913778507874303";
+constexpr int additionaldigit = 1000000000;
+constexpr int MAXIMUMSIZE = 609;
+constexpr int digitssize = 69;
+
+struct uint2022_t {
+    std::array<int, 69> digits;
+    int countdigits = 0;
+    bool str = 1;
+    bool flag = 0;
+    // implement
+};
+
+static_assert(sizeof(uint2022_t) <= 300, "Size of uint2022_t must be no higher than 300 bytes");
+
+uint2022_t from_uint(uint32_t i);
+
+uint2022_t from_string(const char *buff);
+
+uint2022_t operator+(const uint2022_t &lhs, const uint2022_t &rhs);
+
+uint2022_t operator-(const uint2022_t &lhs, const uint2022_t &rhs);
+
+uint2022_t operator*(const uint2022_t &lhs, const uint2022_t &rhs);
+
+uint2022_t operator/(const uint2022_t &lhs, const uint2022_t &rhs);
+
+bool operator==(const uint2022_t &lhs, const uint2022_t &rhs);
+
+bool operator!=(const uint2022_t &lhs, const uint2022_t &rhs);
+
+std::ostream &operator<<(std::ostream &stream, uint2022_t value);
